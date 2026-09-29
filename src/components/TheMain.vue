@@ -1,35 +1,86 @@
 <script setup>
 import { ref } from 'vue';
 
-const selectedIndex = ref(null);
+import Computer from '../assets/computer.png';
+import Crossword from '../assets/crossword.png';
+import BaseModal from './BaseModal.vue';
+const modalOpen = ref(false);
 
-const icons = [
-    '🐉','🌿','🐚','🐍','🦜','🔥','🐴','⭐',
-    '🐦','😈','🐛','🍡','🦇','🐵','👻','🐔',
-    '🐸','🐢','🦋','🐝','🐞','🦀','🐙','🐠',
-    '🦁','🐯','🐻','🐼','🐨','🦊','🐰','🦝',
-    '🐺','🐗','🐮','🐷','🐭','🐹','🐿️','🦔',
-    '🦉','🦅','🦢','🦩','🦚','🦆','🐋','🐬',
-    '🦈','🐊','🦕','🦖','🐳','🦑','🦐','🦞',
-    '🐌','🕷️','🦂','🪲','🪳','🦟','🪰','🐝'
-];
+function closeModal() {
+    modalOpen.value = false;
+}
 
 
 function selectTile(index) {
-    selectedIndex.value = selectedIndex.value === index ? null : index;
+    if (tiles.value[index].matched) return;
+
+    if (selectedIndex.value === null) {
+        selectedIndex.value = index;
+        return;
+    }
+
+    const first = tiles.value[selectedIndex.value];
+    const second = tiles.value[index];
+
+    if (index !== selectedIndex.value && first.id === second.id) {
+        first.matched = true;
+        second.matched = true;
+        coins.value++;
+        winPrize(); 
+    }
+
+    selectedIndex.value = null;
 }
 const tiles = ref([]);
-for (let i = 0; i < 100; i++) {
-    tiles.value.push(icons[i % icons.length]);
+const selectedIndex = ref(null);
+const coins = ref(29);
+const icons = [
+    {
+        id: 1,
+        image: Computer,
+        name: 'Computer'
+    },
+    {
+        id: 2,
+        image: Crossword,
+        name: 'Crossword'
+    }
+];
+function winPrize() {
+    if(coins.value === 30) {
+        modalOpen.value = true
+    }
+}
+for (let i = 0; i < 60; i++) {
+    tiles.value.push({ ...icons[i % icons.length], matched: false });
 }
 </script>
 
 <template>
-    <div class="board">
-        <div class="cell" v-for="(icon, index) in tiles" @click="selectTile(index)" :key="index" :class="{ selected: selectedIndex === index }">
-            {{ icon }}
+    <div>
+        <BaseModal :isOpen="modalOpen" @close="closeModal">
+            <template #header>
+                <h2>
+                    You win!!!
+                </h2>
+            </template>
+            <template #default>
+                <p>Play again</p>
+            </template>
+        </BaseModal>    
+        <div class="coins">Коины: {{ coins }}</div>
+        <div class="board">
+            <div
+                class="cell"
+                v-for="(tile, index) in tiles"
+                :key="index"
+                :class="{ selected: selectedIndex === index, matched: tile.matched }"
+                @click="selectTile(index)"
+            >
+                <img :src="tile.image" draggable="false" />
+            </div>
         </div>
-    </div>
+    </div>    
 </template>
 
 <style scoped>
@@ -58,5 +109,11 @@ for (let i = 0; i < 100; i++) {
 .cell.selected,
 .cell.selected:hover {
     background: rgb(3, 102, 3);
+}
+.coins {
+    color: white;
+}
+.cell.matched {
+    visibility: hidden;
 }
 </style>

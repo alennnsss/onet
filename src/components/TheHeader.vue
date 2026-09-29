@@ -9,7 +9,6 @@
             <p>0 {{ catchesLeft }}</p>
         </button>
         <div class="loader"></div>
-        <p class="counter">0{{ counter }}</p>
     </header>
 </template>
 
@@ -18,7 +17,6 @@ import { ref } from 'vue';
 
 const searchesLeft = ref(7);
 const catchesLeft = ref(7);
-const counter = ref(0);
 
 const searchesMinus = () => {
     searchesLeft.value -= 1;
