@@ -33,7 +33,7 @@ function selectTile(index) {
 }
 const tiles = ref([]);
 const selectedIndex = ref(null);
-const coins = ref(29);
+const coins = ref(0);
 const icons = [
     {
         id: 1,
